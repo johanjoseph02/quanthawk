@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quant Hawk: alert queue</title>
+  <style>
+    :root {
+      --bg: #f5f6f8; --panel: #fff; --ink: #15181d; --muted: #5d6673; --line: #e3e6ea;
+      --accent: #3157d5; --fraud: #c93c3c; --legit: #23874f; --warn: #b7791f;
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0e1115; --panel: #161a20; --ink: #e7eaee; --muted: #9aa3ae; --line: #262b33;
+              --accent: #7d9bff; --fraud: #ff7676; --legit: #55d68b; --warn: #f0b44c; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink);
+           font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    header { display: flex; gap: 12px; align-items: center; padding: 12px 20px;
+             border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; }
+    header b { letter-spacing: .04em; }
+    header .grow { flex: 1; }
+    main { max-width: 1200px; margin: 0 auto; padding: 16px 20px; display: grid; gap: 16px; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+    .kpi .l { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    .kpi .v { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .cols { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+    @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+    h2 { font-size: 15px; margin: 0 0 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    ul.why { margin: 0; padding-left: 16px; color: var(--muted); }
+    button, input, select { font: inherit; color: inherit; background: var(--panel);
+             border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+    button { cursor: pointer; }
+    button.fraud { border-color: var(--fraud); color: var(--fraud); }
+    button.legit { border-color: var(--legit); color: var(--legit); }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 50%, transparent); outline-offset: 2px; }
+    .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line); }
+    .stable { color: var(--legit); } .watch { color: var(--warn); } .drifted { color: var(--fraud); }
+    .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+    .bar i { display: block; height: 100%; background: var(--accent); }
+    .empty { color: var(--muted); padding: 20px; text-align: center; }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  </style>
+</head>
+<body>
+  <header>
+    <b>QUANT HAWK</b><span style="color:var(--muted)">alert queue</span>
+    <span class="grow"></span>
+    <label class="sr" for="token">API token</label>
+    <input id="token" type="password" placeholder="API token (if set)" autocomplete="off">
+    <label class="sr" for="status">Show</label>
+    <select id="status"><option value="open">Open</option><option value="reviewed">Reviewed</option><option value="all">All</option></select>
+  </header>
+  <main>
+    <section class="kpis" id="kpis" aria-label="Key figures"></section>
+    <section class="cols">
+      <div class="card">
+        <h2>Alerts, highest score first</h2>
+        <p id="announce" class="sr" aria-live="polite"></p>
+        <table>
+          <thead><tr><th>When</th><th>Account</th><th>What</th><th class="num">Score</th><th>Why</th><th>Verdict</th></tr></thead>
+          <tbody id="alerts"></tbody>
+        </table>
+      </div>
+      <div class="grid" style="display:grid; gap:16px; align-content:start">
+        <div class="card"><h2>Alert rate by segment</h2><div id="segments"></div></div>
+        <div class="card"><h2>Drift <span id="drift-status" class="pill"></span></h2>
+          <p style="color:var(--muted); margin:0 0 8px">Population stability index, live traffic against training. Above 0.25 means the model is scoring customers it has not seen.</p>
+          <table><tbody id="drift"></tbody></table></div>
+      </div>
+    </section>
+  </main>
+  <script type="module">
+    const $ = (id) => document.getElementById(id);
+    const token = $("token");
+    try { token.value = sessionStorage.getItem("qh-token") ?? ""; } catch {}
+    token.addEventListener("change", () => { try { sessionStorage.setItem("qh-token", token.value); } catch {} refresh(); });
+    $("status").addEventListener("change", refresh);
+
+    async function api(path, opts = {}) {
+      const headers = { "Content-Type": "application/json", ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}) };
+      const r = await fetch(path, { ...opts, headers });
+      if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+      return r.json();
+    }
+    const el = (tag, attrs = {}, ...kids) => {
+      const n = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) k.startsWith("on") ? n.addEventListener(k.slice(2), v) : n.setAttribute(k, v);
+      n.append(...kids.flat().filter((k) => k != null).map((k) => k instanceof Node ? k : document.createTextNode(String(k))));
+      return n;
+    };
+    const pct = (x, d = 2) => x == null ? "–" : `${(100 * x).toFixed(d)}%`;
+    const when = (ts) => new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(new Date(ts * 1000));
+    const money = (x) => x.toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+    function kpi(l, v) { return el("div", { class: "card kpi" }, el("div", { class: "l" }, l), el("div", { class: "v" }, v)); }
+
+    async function verdict(id, v) {
+      await api(`/v1/alerts/${id}/review`, { method: "POST", body: JSON.stringify({ verdict: v }) });
+      $("announce").textContent = `Alert ${id} marked ${v}.`;
+      refresh();
+    }
+
+    async function refresh() {
+      try {
+        const [stats, alerts, drift] = await Promise.all([api("/v1/stats"), api(`/v1/alerts?status=${$("status").value}&limit=200`), api("/v1/drift")]);
+        $("kpis").replaceChildren(
+          kpi("Scored", stats.scored.toLocaleString()),
+          kpi("Alert rate", `${pct(stats.alert_rate)} of ${pct(stats.budget, 1)}`),
+          kpi("Open alerts", stats.open_alerts.toLocaleString()),
+          kpi("Reviewed", stats.reviewed.toLocaleString()),
+          kpi("Precision (reviewed)", pct(stats.precision_of_reviewed, 0)),
+          kpi("Segments", stats.model.k ?? "–"),
+        );
+        $("alerts").replaceChildren(...(alerts.length ? alerts.map((a) => el("tr", {},
+          el("td", {}, when(a.ts)),
+          el("td", {}, a.account_id, el("div", { style: "color:var(--muted)" }, a.segment < 0 ? "new account" : `segment ${a.segment}`)),
+          el("td", {}, `${a.channel.replace("_", " ")} ${money(a.amount)}`),
+          el("td", { class: "num" }, a.score.toFixed(3)),
+          el("td", {}, el("ul", { class: "why" }, a.reasons.map((r) => el("li", {}, r.text)))),
+          el("td", {}, a.verdict
+            ? el("span", { class: "pill", style: `color:var(--${a.verdict})` }, a.verdict)
+            : el("div", { style: "display:flex; gap:6px" },
+                el("button", { class: "fraud", onclick: () => verdict(a.id, "fraud"), "aria-label": `Alert ${a.id} is fraud` }, "Fraud"),
+                el("button", { class: "legit", onclick: () => verdict(a.id, "legit"), "aria-label": `Alert ${a.id} is legitimate` }, "Legit"))),
+        )) : [el("tr", {}, el("td", { colspan: 6, class: "empty" }, "Nothing in the queue."))]));
+        const maxRate = Math.max(0.0001, ...stats.by_segment.map((s) => s.alert_rate));
+        $("segments").replaceChildren(...stats.by_segment.map((s) => el("div", { style: "margin-bottom:8px" },
+          el("div", { style: "display:flex; justify-content:space-between" }, el("span", {}, s.segment < 0 ? "new accounts" : `segment ${s.segment}`), el("span", { class: "num" }, `${pct(s.alert_rate)} of ${s.scored.toLocaleString()}`)),
+          el("div", { class: "bar" }, el("i", { style: `width:${(100 * s.alert_rate) / maxRate}%` })))));
+        $("drift-status").textContent = drift.status;
+        $("drift-status").className = `pill ${drift.status}`;
+        $("drift").replaceChildren(...Object.entries(drift.psi).slice(0, 8).map(([k, v]) =>
+          el("tr", {}, el("td", {}, k), el("td", { class: `num ${v < 0.1 ? "stable" : v < 0.25 ? "watch" : "drifted"}` }, v.toFixed(3)))));
+      } catch (e) {
+        $("alerts").replaceChildren(el("tr", {}, el("td", { colspan: 6, class: "empty" }, `Could not load: ${e.message}`)));
+      }
+    }
+    refresh();
+    setInterval(refresh, 5000);
+  </script>
+</body>
+</html>
