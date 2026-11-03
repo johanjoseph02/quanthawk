@@ -1,0 +1,910 @@
+{
+  "config": {
+    "model": {
+      "k": null,
+      "k_range": [
+        3,
+        10
+      ],
+      "n_estimators": 200,
+      "max_samples": 256,
+      "min_segment_tx": 2000,
+      "seed": 0
+    },
+    "sim": {
+      "accounts": 3000,
+      "days": 120,
+      "seed": 0,
+      "fraud_share": 0.06,
+      "late_open_share": 0.05,
+      "archetype_mix": null,
+      "fraud_mix": {
+        "account_takeover": 0.25,
+        "card_testing": 0.2,
+        "atm_cashout": 0.15,
+        "mule": 0.2,
+        "low_and_slow": 0.2
+      }
+    },
+    "train_days": 60,
+    "budgets": [
+      0.005,
+      0.01
+    ],
+    "features": [
+      "log_amount",
+      "amount_z",
+      "amount_vs_max",
+      "n_1h",
+      "n_24h",
+      "out_24h_vs_max",
+      "new_in_24h_vs_max",
+      "passthrough",
+      "log_gap",
+      "new_device",
+      "new_counterparty",
+      "new_city",
+      "new_mcc",
+      "new_cp_24h",
+      "hour_rarity",
+      "log_account_age",
+      "is_pos",
+      "is_online",
+      "is_atm",
+      "is_transfer_out",
+      "is_transfer_in"
+    ],
+    "profile": [
+      "log_tx_per_day",
+      "share_pos",
+      "share_online",
+      "share_atm",
+      "share_transfer_out",
+      "share_transfer_in",
+      "mean_log_out",
+      "mean_log_in",
+      "night_share",
+      "weekend_share",
+      "log_cities",
+      "log_devices"
+    ]
+  },
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "runs": [
+    {
+      "data": {
+        "train_tx": 591853,
+        "test_tx": 604683,
+        "test_fraud_tx": 640,
+        "train_fraud_tx": 499,
+        "test_fraud_rate": 0.0010584058093248859
+      },
+      "models": {
+        "rules": {
+          "average_precision": 0.022498321042103912,
+          "roc_auc": 0.7298126514792821,
+          "recall@0.5%": 0.1375,
+          "precision@0.5%": 0.029110155474694012,
+          "recall@1.0%": 0.1609375,
+          "precision@1.0%": 0.01703323962295353,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.02,
+            "card_testing": 0.15979381443298968,
+            "atm_cashout": 0.28205128205128205,
+            "mule": 0.2682926829268293,
+            "low_and_slow": 0.032467532467532464
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.017620424417653154,
+            "high_net_worth": 0.0019018102416003381,
+            "retiree": 0.00043159257660768235,
+            "salaried": 0.001545062899984076,
+            "small_business": 0.03311264744941801,
+            "student": 0.0019823084301396144
+          },
+          "episodes": 104,
+          "episodes_caught@1.0%": 0.5865384615384616,
+          "median_minutes_to_first_alert@1.0%": 26.889232218731195
+        },
+        "isolation forest, global": {
+          "average_precision": 0.1257402981052845,
+          "roc_auc": 0.9248376434914402,
+          "recall@0.5%": 0.38125,
+          "precision@0.5%": 0.08071452199801522,
+          "recall@1.0%": 0.4859375,
+          "precision@1.0%": 0.051430461385811144,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.52,
+            "card_testing": 0.8917525773195877,
+            "atm_cashout": 0.21794871794871795,
+            "mule": 0.5365853658536586,
+            "low_and_slow": 0.045454545454545456
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.002427581692215373,
+            "high_net_worth": 0.001866591533422554,
+            "retiree": 0.0005125161847216228,
+            "salaried": 0.001024303538151003,
+            "small_business": 0.04966408874306695,
+            "student": 0.0007780027709687733
+          },
+          "episodes": 104,
+          "episodes_caught@1.0%": 0.7115384615384616,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        },
+        "k-means + isolation forest (Quant Hawk)": {
+          "average_precision": 0.4170576560099941,
+          "roc_auc": 0.9532809258819323,
+          "recall@0.5%": 0.6125,
+          "precision@0.5%": 0.1296725107509097,
+          "recall@1.0%": 0.6734375,
+          "precision@1.0%": 0.07127501240284438,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.94,
+            "card_testing": 0.9639175257731959,
+            "atm_cashout": 0.5256410256410257,
+            "mule": 0.8658536585365854,
+            "low_and_slow": 0.09090909090909091
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.009064790064189988,
+            "high_net_worth": 0.01098823695146862,
+            "retiree": 0.011679974104445403,
+            "salaried": 0.009502782404358884,
+            "small_business": 0.006210452308413405,
+            "student": 0.01097729937120324
+          },
+          "episodes": 104,
+          "episodes_caught@1.0%": 0.8461538461538461,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        },
+        "isolation forest per true archetype (oracle)": {
+          "average_precision": 0.37658910663884476,
+          "roc_auc": 0.939941276428168,
+          "recall@0.5%": 0.628125,
+          "precision@0.5%": 0.1329804829639431,
+          "recall@1.0%": 0.684375,
+          "precision@1.0%": 0.07243261121217133,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.94,
+            "card_testing": 0.9742268041237113,
+            "atm_cashout": 0.6794871794871795,
+            "mule": 0.8536585365853658,
+            "low_and_slow": 0.05844155844155844
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.010810466786681941,
+            "high_net_worth": 0.008170740297245897,
+            "retiree": 0.015132714717306862,
+            "salaried": 0.00891316230046524,
+            "small_business": 0.0068549332083430985,
+            "student": 0.009101566663114142
+          },
+          "episodes": 104,
+          "episodes_caught@1.0%": 0.8269230769230769,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        },
+        "gradient boosting, supervised (reference)": {
+          "average_precision": 0.6672813749842602,
+          "roc_auc": 0.9955314853412753,
+          "recall@0.5%": 0.840625,
+          "precision@0.5%": 0.17796890506119747,
+          "recall@1.0%": 0.8859375,
+          "precision@1.0%": 0.09376550355548206,
+          "recall_by_type@1.0%": {
+            "account_takeover": 1.0,
+            "card_testing": 0.9948453608247423,
+            "atm_cashout": 0.9871794871794872,
+            "mule": 0.8658536585365854,
+            "low_and_slow": 0.6818181818181818
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.010274034877166185,
+            "high_net_worth": 0.008628583503557089,
+            "retiree": 0.009980578334052654,
+            "salaried": 0.007918985336965738,
+            "small_business": 0.010135926880712444,
+            "student": 0.009133539379729298
+          },
+          "episodes": 104,
+          "episodes_caught@1.0%": 0.9615384615384616,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        }
+      },
+      "segmentation": {
+        "k": 5,
+        "silhouette_by_k": {
+          "3": 0.3902,
+          "4": 0.4326,
+          "5": 0.4471,
+          "6": 0.3762,
+          "7": 0.3783,
+          "8": 0.3495,
+          "9": 0.3483,
+          "10": 0.3187
+        },
+        "adjusted_rand_index_tx": 0.7095302769043185,
+        "cold_share_of_test_tx": 0.006193327743627653,
+        "segment_majority_archetype": {
+          "0": {
+            "archetype": "high_net_worth",
+            "share": 0.873
+          },
+          "1": {
+            "archetype": "salaried",
+            "share": 0.709
+          },
+          "2": {
+            "archetype": "small_business",
+            "share": 1.0
+          },
+          "3": {
+            "archetype": "gig_worker",
+            "share": 0.998
+          },
+          "4": {
+            "archetype": "retiree",
+            "share": 1.0
+          }
+        }
+      },
+      "seconds": 112.9
+    },
+    {
+      "data": {
+        "train_tx": 603126,
+        "test_tx": 614390,
+        "test_fraud_tx": 702,
+        "train_fraud_tx": 474,
+        "test_fraud_rate": 0.0011425967219518547
+      },
+      "models": {
+        "rules": {
+          "average_precision": 0.02462378718159179,
+          "roc_auc": 0.7447656429516918,
+          "recall@0.5%": 0.14957264957264957,
+          "precision@0.5%": 0.0341796875,
+          "recall@1.0%": 0.16809116809116809,
+          "precision@1.0%": 0.019205729166666668,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.05454545454545454,
+            "card_testing": 0.17391304347826086,
+            "atm_cashout": 0.2682926829268293,
+            "mule": 0.3333333333333333,
+            "low_and_slow": 0.030927835051546393
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.016063512084732244,
+            "high_net_worth": 0.0020761832125757384,
+            "retiree": 0.0006412758601460994,
+            "salaried": 0.0014580431754874653,
+            "small_business": 0.031528123698370464,
+            "student": 0.0017980161215378088
+          },
+          "episodes": 108,
+          "episodes_caught@1.0%": 0.6296296296296297,
+          "median_minutes_to_first_alert@1.0%": 29.494037799777775
+        },
+        "isolation forest, global": {
+          "average_precision": 0.07741346621747966,
+          "roc_auc": 0.9191976306454673,
+          "recall@0.5%": 0.3176638176638177,
+          "precision@0.5%": 0.07259114583333333,
+          "recall@1.0%": 0.4188034188034188,
+          "precision@1.0%": 0.0478515625,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.45454545454545453,
+            "card_testing": 0.8391304347826087,
+            "atm_cashout": 0.10975609756097561,
+            "mule": 0.3971631205673759,
+            "low_and_slow": 0.05670103092783505
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.0024577544471443675,
+            "high_net_worth": 0.0012287614931570695,
+            "retiree": 0.0005018680644621647,
+            "salaried": 0.0006006267409470752,
+            "small_business": 0.04546034120757219,
+            "student": 0.0005252631366290229
+          },
+          "episodes": 108,
+          "episodes_caught@1.0%": 0.6296296296296297,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        },
+        "k-means + isolation forest (Quant Hawk)": {
+          "average_precision": 0.39057625717883915,
+          "roc_auc": 0.9542061143127157,
+          "recall@0.5%": 0.5769230769230769,
+          "precision@0.5%": 0.1318359375,
+          "recall@1.0%": 0.6282051282051282,
+          "precision@1.0%": 0.07177734375,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.8,
+            "card_testing": 0.9521739130434783,
+            "atm_cashout": 0.5121951219512195,
+            "mule": 0.8652482269503546,
+            "low_and_slow": 0.07216494845360824
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.008300717849789467,
+            "high_net_worth": 0.011863904071861362,
+            "retiree": 0.010065242848380082,
+            "salaried": 0.009314066852367688,
+            "small_business": 0.007990411506192568,
+            "student": 0.010980019798379766
+          },
+          "episodes": 108,
+          "episodes_caught@1.0%": 0.8148148148148148,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        },
+        "isolation forest per true archetype (oracle)": {
+          "average_precision": 0.3748612318041486,
+          "roc_auc": 0.9401484267124463,
+          "recall@0.5%": 0.584045584045584,
+          "precision@0.5%": 0.13346354166666666,
+          "recall@1.0%": 0.6481481481481481,
+          "precision@1.0%": 0.07405598958333333,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.8545454545454545,
+            "card_testing": 0.9739130434782609,
+            "atm_cashout": 0.5853658536585366,
+            "mule": 0.8794326241134752,
+            "low_and_slow": 0.061855670103092786
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.010563706850179,
+            "high_net_worth": 0.008728443710012287,
+            "retiree": 0.01171025483745051,
+            "salaried": 0.008356545961002786,
+            "small_business": 0.007131867291165495,
+            "student": 0.011767914503323299
+          },
+          "episodes": 108,
+          "episodes_caught@1.0%": 0.8055555555555556,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        },
+        "gradient boosting, supervised (reference)": {
+          "average_precision": 0.7424191057356905,
+          "roc_auc": 0.9957038046951,
+          "recall@0.5%": 0.8803418803418803,
+          "precision@0.5%": 0.201171875,
+          "recall@1.0%": 0.9188034188034188,
+          "precision@1.0%": 0.10498046875,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.9636363636363636,
+            "card_testing": 0.991304347826087,
+            "atm_cashout": 1.0,
+            "mule": 0.950354609929078,
+            "low_and_slow": 0.7628865979381443
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.008022481497282559,
+            "high_net_worth": 0.007669166560738952,
+            "retiree": 0.014331121396308481,
+            "salaried": 0.009370647632311978,
+            "small_business": 0.010149522700419071,
+            "student": 0.005979918786238106
+          },
+          "episodes": 108,
+          "episodes_caught@1.0%": 0.9814814814814815,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        }
+      },
+      "segmentation": {
+        "k": 5,
+        "silhouette_by_k": {
+          "3": 0.3909,
+          "4": 0.4372,
+          "5": 0.4475,
+          "6": 0.3741,
+          "7": 0.3774,
+          "8": 0.3451,
+          "9": 0.3525,
+          "10": 0.3166
+        },
+        "adjusted_rand_index_tx": 0.6896721832102507,
+        "cold_share_of_test_tx": 0.0059978189749182115,
+        "segment_majority_archetype": {
+          "0": {
+            "archetype": "salaried",
+            "share": 0.689
+          },
+          "1": {
+            "archetype": "small_business",
+            "share": 1.0
+          },
+          "2": {
+            "archetype": "gig_worker",
+            "share": 0.999
+          },
+          "3": {
+            "archetype": "high_net_worth",
+            "share": 0.671
+          },
+          "4": {
+            "archetype": "retiree",
+            "share": 0.999
+          }
+        }
+      },
+      "seconds": 105.6
+    },
+    {
+      "data": {
+        "train_tx": 600534,
+        "test_tx": 615789,
+        "test_fraud_tx": 662,
+        "train_fraud_tx": 454,
+        "test_fraud_rate": 0.0010750435619993211
+      },
+      "models": {
+        "rules": {
+          "average_precision": 0.026232351043996637,
+          "roc_auc": 0.7541607979885293,
+          "recall@0.5%": 0.13293051359516617,
+          "precision@0.5%": 0.028580708022085094,
+          "recall@1.0%": 0.14803625377643503,
+          "precision@1.0%": 0.015914257875933743,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.045454545454545456,
+            "card_testing": 0.17261904761904762,
+            "atm_cashout": 0.18181818181818182,
+            "mule": 0.3739130434782609,
+            "low_and_slow": 0.029556650246305417
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.01611554068484374,
+            "high_net_worth": 0.0017742380633205851,
+            "retiree": 0.0003768443632779662,
+            "salaried": 0.0015965678251446053,
+            "small_business": 0.03127285241106379,
+            "student": 0.001933121796436417
+          },
+          "episodes": 111,
+          "episodes_caught@1.0%": 0.5315315315315315,
+          "median_minutes_to_first_alert@1.0%": 29.03515689492536
+        },
+        "isolation forest, global": {
+          "average_precision": 0.07550344506722394,
+          "roc_auc": 0.9136477267237085,
+          "recall@0.5%": 0.30513595166163143,
+          "precision@0.5%": 0.06560571614160442,
+          "recall@1.0%": 0.3987915407854985,
+          "precision@1.0%": 0.04287106203312764,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.38636363636363635,
+            "card_testing": 0.8988095238095238,
+            "atm_cashout": 0.09090909090909091,
+            "mule": 0.5478260869565217,
+            "low_and_slow": 0.03940886699507389
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.0025895208941410976,
+            "high_net_worth": 0.0016953830382841146,
+            "retiree": 0.0008116647824448503,
+            "salaried": 0.0007982839125723027,
+            "small_business": 0.045382199853744566,
+            "student": 0.0007615328288991945
+          },
+          "episodes": 111,
+          "episodes_caught@1.0%": 0.6036036036036037,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        },
+        "k-means + isolation forest (Quant Hawk)": {
+          "average_precision": 0.2923777810966413,
+          "roc_auc": 0.9439487398463542,
+          "recall@0.5%": 0.5241691842900302,
+          "precision@0.5%": 0.11269892822344917,
+          "recall@1.0%": 0.5921450151057401,
+          "precision@1.0%": 0.06365703150373497,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.7727272727272727,
+            "card_testing": 0.9345238095238095,
+            "atm_cashout": 0.42045454545454547,
+            "mule": 0.9043478260869565,
+            "low_and_slow": 0.12807881773399016
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.0105360575211789,
+            "high_net_worth": 0.010842565942514686,
+            "retiree": 0.011392294982172363,
+            "salaried": 0.009048704238040235,
+            "small_business": 0.007175119370241322,
+            "student": 0.01026116670734684
+          },
+          "episodes": 111,
+          "episodes_caught@1.0%": 0.8018018018018018,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        },
+        "isolation forest per true archetype (oracle)": {
+          "average_precision": 0.2435329294591299,
+          "roc_auc": 0.9307720390823231,
+          "recall@0.5%": 0.5483383685800605,
+          "precision@0.5%": 0.117895420591101,
+          "recall@1.0%": 0.6102719033232629,
+          "precision@1.0%": 0.06560571614160442,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.9090909090909091,
+            "card_testing": 0.9761904761904762,
+            "atm_cashout": 0.42045454545454547,
+            "mule": 0.9130434782608695,
+            "low_and_slow": 0.08866995073891626
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.011319142877482737,
+            "high_net_worth": 0.008082640066238222,
+            "retiree": 0.012116995680783836,
+            "salaried": 0.009111139851314046,
+            "small_business": 0.006856798726717426,
+            "student": 0.009948742982670247
+          },
+          "episodes": 111,
+          "episodes_caught@1.0%": 0.8108108108108109,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        },
+        "gradient boosting, supervised (reference)": {
+          "average_precision": 0.5753891703726596,
+          "roc_auc": 0.9840176656075005,
+          "recall@0.5%": 0.8187311178247734,
+          "precision@0.5%": 0.17603117895420592,
+          "recall@1.0%": 0.8897280966767371,
+          "precision@1.0%": 0.09564793764209159,
+          "recall_by_type@1.0%": {
+            "account_takeover": 0.9545454545454546,
+            "card_testing": 1.0,
+            "atm_cashout": 1.0,
+            "mule": 0.9652173913043478,
+            "low_and_slow": 0.6798029556650246
+          },
+          "false_alert_rate_by_archetype@1.0%": {
+            "gig_worker": 0.008952089414109774,
+            "high_net_worth": 0.020936009147182903,
+            "retiree": 0.009305156970171318,
+            "salaried": 0.0063327550606294405,
+            "small_business": 0.011347700778595088,
+            "student": 0.009489870637051501
+          },
+          "episodes": 111,
+          "episodes_caught@1.0%": 0.9819819819819819,
+          "median_minutes_to_first_alert@1.0%": 0.0
+        }
+      },
+      "segmentation": {
+        "k": 5,
+        "silhouette_by_k": {
+          "3": 0.3887,
+          "4": 0.4372,
+          "5": 0.4509,
+          "6": 0.3814,
+          "7": 0.3821,
+          "8": 0.3493,
+          "9": 0.3575,
+          "10": 0.3497
+        },
+        "adjusted_rand_index_tx": 0.6902175900174432,
+        "cold_share_of_test_tx": 0.006812398402699626,
+        "segment_majority_archetype": {
+          "0": {
+            "archetype": "high_net_worth",
+            "share": 0.709
+          },
+          "1": {
+            "archetype": "small_business",
+            "share": 1.0
+          },
+          "2": {
+            "archetype": "gig_worker",
+            "share": 0.998
+          },
+          "3": {
+            "archetype": "retiree",
+            "share": 1.0
+          },
+          "4": {
+            "archetype": "salaried",
+            "share": 0.678
+          }
+        }
+      },
+      "seconds": 95.1
+    }
+  ],
+  "summary": {
+    "rules": {
+      "average_precision": {
+        "mean": 0.024451486422564114,
+        "sd": 0.0015292723056909302
+      },
+      "roc_auc": {
+        "mean": 0.7429130308065011,
+        "sd": 0.010026039046048143
+      },
+      "recall@0.5%": {
+        "mean": 0.1400010543892719,
+        "sd": 0.007020523592384168
+      },
+      "precision@0.5%": {
+        "mean": 0.030623516998926365,
+        "sd": 0.0025238647779147797
+      },
+      "recall@1.0%": {
+        "mean": 0.15902164062253438,
+        "sd": 0.008298706120373563
+      },
+      "precision@1.0%": {
+        "mean": 0.017384408888517982,
+        "sd": 0.0013664883715171947
+      },
+      "episodes": {
+        "mean": 107.66666666666667,
+        "sd": 2.8674417556808756
+      },
+      "episodes_caught@1.0%": {
+        "mean": 0.5825665408998743,
+        "sd": 0.0401467419000633
+      },
+      "median_minutes_to_first_alert@1.0%": {
+        "mean": 28.472808971144776,
+        "sd": 1.1353206358552352
+      },
+      "recall_by_type@1.0%": {
+        "account_takeover": 0.04,
+        "card_testing": 0.16877530184343273,
+        "atm_cashout": 0.2440540489320977,
+        "mule": 0.3251796865794745,
+        "low_and_slow": 0.03098400592179476
+      },
+      "false_alert_rate_by_archetype@1.0%": {
+        "gig_worker": 0.016599825729076378,
+        "high_net_worth": 0.0019174105058322203,
+        "retiree": 0.0004832376000105827,
+        "salaried": 0.0015332246335387158,
+        "small_business": 0.03197120785295076,
+        "student": 0.0019044821160379467
+      }
+    },
+    "isolation forest, global": {
+      "average_precision": {
+        "mean": 0.09288573646332937,
+        "sd": 0.023244765872663012
+      },
+      "roc_auc": {
+        "mean": 0.9192276669535387,
+        "sd": 0.004568313762724144
+      },
+      "recall@0.5%": {
+        "mean": 0.33468325644181635,
+        "sd": 0.03332249551331563
+      },
+      "precision@0.5%": {
+        "mean": 0.07297046132431766,
+        "sd": 0.006173972993297691
+      },
+      "recall@1.0%": {
+        "mean": 0.4345108198629724,
+        "sd": 0.03727059956487724
+      },
+      "precision@1.0%": {
+        "mean": 0.04738436197297959,
+        "sd": 0.003509941743962502
+      },
+      "episodes": {
+        "mean": 107.66666666666667,
+        "sd": 2.8674417556808756
+      },
+      "episodes_caught@1.0%": {
+        "mean": 0.6482572315905649,
+        "sd": 0.045990753095709505
+      },
+      "median_minutes_to_first_alert@1.0%": {
+        "mean": 0.0,
+        "sd": 0.0
+      },
+      "recall_by_type@1.0%": {
+        "account_takeover": 0.4536363636363636,
+        "card_testing": 0.8765641786372401,
+        "atm_cashout": 0.1395379688062615,
+        "mule": 0.4938581911258521,
+        "low_and_slow": 0.04718814779248481
+      },
+      "false_alert_rate_by_archetype@1.0%": {
+        "gig_worker": 0.002491619011166946,
+        "high_net_worth": 0.001596912021621246,
+        "retiree": 0.0006086830105428792,
+        "salaried": 0.0008077380638901269,
+        "small_business": 0.046835543268127895,
+        "student": 0.0006882662454989969
+      }
+    },
+    "k-means + isolation forest (Quant Hawk)": {
+      "average_precision": {
+        "mean": 0.36667056476182486,
+        "sd": 0.053633816444198686
+      },
+      "roc_auc": {
+        "mean": 0.9504785933470007,
+        "sd": 0.004632726588309399
+      },
+      "recall@0.5%": {
+        "mean": 0.571197420404369,
+        "sd": 0.03628746898425432
+      },
+      "precision@0.5%": {
+        "mean": 0.12473579215811963,
+        "sd": 0.008557050654713438
+      },
+      "recall@1.0%": {
+        "mean": 0.6312625477702895,
+        "sd": 0.033257860082181484
+      },
+      "precision@1.0%": {
+        "mean": 0.06890312921885978,
+        "sd": 0.003715215572306415
+      },
+      "episodes": {
+        "mean": 107.66666666666667,
+        "sd": 2.8674417556808756
+      },
+      "episodes_caught@1.0%": {
+        "mean": 0.8209234875901542,
+        "sd": 0.01861474096620842
+      },
+      "median_minutes_to_first_alert@1.0%": {
+        "mean": 0.0,
+        "sd": 0.0
+      },
+      "recall_by_type@1.0%": {
+        "account_takeover": 0.8375757575757575,
+        "card_testing": 0.9502050827801612,
+        "atm_cashout": 0.4860968976822635,
+        "mule": 0.8784832371912988,
+        "low_and_slow": 0.0970509523655631
+      },
+      "false_alert_rate_by_archetype@1.0%": {
+        "gig_worker": 0.009300521811719453,
+        "high_net_worth": 0.01123156898861489,
+        "retiree": 0.011045837311665948,
+        "salaried": 0.009288517831588936,
+        "small_business": 0.007125327728282432,
+        "student": 0.010739495292309947
+      }
+    },
+    "isolation forest per true archetype (oracle)": {
+      "average_precision": {
+        "mean": 0.33166108930070776,
+        "sd": 0.06232001179748559
+      },
+      "roc_auc": {
+        "mean": 0.9369539140743125,
+        "sd": 0.0043720637096994865
+      },
+      "recall@0.5%": {
+        "mean": 0.5868363175418815,
+        "sd": 0.03263247649628449
+      },
+      "precision@0.5%": {
+        "mean": 0.12811314840723695,
+        "sd": 0.007227715532174165
+      },
+      "recall@1.0%": {
+        "mean": 0.6475983504904703,
+        "sd": 0.030254960390749725
+      },
+      "precision@1.0%": {
+        "mean": 0.07069810564570302,
+        "sd": 0.0036613442413116885
+      },
+      "episodes": {
+        "mean": 107.66666666666667,
+        "sd": 2.8674417556808756
+      },
+      "episodes_caught@1.0%": {
+        "mean": 0.8144298144298144,
+        "sd": 0.00909086107926125
+      },
+      "median_minutes_to_first_alert@1.0%": {
+        "mean": 0.0,
+        "sd": 0.0
+      },
+      "recall_by_type@1.0%": {
+        "account_takeover": 0.9012121212121212,
+        "card_testing": 0.9747767745974828,
+        "atm_cashout": 0.5617691928667538,
+        "mule": 0.8820448796532369,
+        "low_and_slow": 0.06965572642785582
+      },
+      "false_alert_rate_by_archetype@1.0%": {
+        "gig_worker": 0.010897772171447892,
+        "high_net_worth": 0.00832727469116547,
+        "retiree": 0.012986655078513737,
+        "salaried": 0.008793616037594024,
+        "small_business": 0.006947866408742007,
+        "student": 0.010272741383035897
+      }
+    },
+    "gradient boosting, supervised (reference)": {
+      "average_precision": {
+        "mean": 0.6616965503642035,
+        "sd": 0.06830394096181257
+      },
+      "roc_auc": {
+        "mean": 0.9917509852146252,
+        "sd": 0.005468735234609017
+      },
+      "recall@0.5%": {
+        "mean": 0.8465659993888845,
+        "sd": 0.025500890439209938
+      },
+      "precision@0.5%": {
+        "mean": 0.18505731967180114,
+        "sd": 0.01142213831952716
+      },
+      "recall@1.0%": {
+        "mean": 0.8981563384933854,
+        "sd": 0.01468147585197416
+      },
+      "precision@1.0%": {
+        "mean": 0.09813130331585788,
+        "sd": 0.004903685000812669
+      },
+      "episodes": {
+        "mean": 107.66666666666667,
+        "sd": 2.8674417556808756
+      },
+      "episodes_caught@1.0%": {
+        "mean": 0.9750006416673083,
+        "sd": 0.009521391549344317
+      },
+      "median_minutes_to_first_alert@1.0%": {
+        "mean": 0.0,
+        "sd": 0.0
+      },
+      "recall_by_type@1.0%": {
+        "account_takeover": 0.9727272727272727,
+        "card_testing": 0.9953832362169431,
+        "atm_cashout": 0.9957264957264957,
+        "mule": 0.9271418865900038,
+        "low_and_slow": 0.7081692451404501
+      },
+      "false_alert_rate_by_archetype@1.0%": {
+        "gig_worker": 0.009082868596186172,
+        "high_net_worth": 0.012411253070492982,
+        "retiree": 0.011205618900177483,
+        "salaried": 0.007874129343302385,
+        "small_business": 0.0105443834532422,
+        "student": 0.0082011096010063
+      }
+    }
+  },
+  "ablation_k": {
+    "1": {
+      "average_precision": 0.16427971658119347,
+      "recall@1.0%": 0.484375,
+      "precision@1.0%": 0.05126509012733587
+    },
+    "3": {
+      "average_precision": 0.3679272004918063,
+      "recall@1.0%": 0.6484375,
+      "precision@1.0%": 0.06862907226723995
+    },
+    "6": {
+      "average_precision": 0.40699793697236564,
+      "recall@1.0%": 0.6546875,
+      "precision@1.0%": 0.06929055730114106
+    },
+    "10": {
+      "average_precision": 0.40420956899454397,
+      "recall@1.0%": 0.6703125,
+      "precision@1.0%": 0.07094426988589383
+    }
+  },
+  "homogeneous": {
+    "k_chosen": 4,
+    "isolation forest, global": 0.24768708070157297,
+    "k-means + isolation forest": 0.29346012865228643
+  }
+}
