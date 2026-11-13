@@ -138,3 +138,7 @@ service on live traffic exposed a payday false-alert spike that the offline benc
 missed; the story of that fix is in [docs/benchmark.md](docs/benchmark.md).
 
 The data is synthetic throughout. No real bank data is used or included.
+
+## Licence
+
+The code is released under the [MIT License](LICENSE).
